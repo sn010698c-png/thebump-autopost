@@ -33,7 +33,7 @@ def generate_caption(article: dict) -> str:
         "news": "tin tức mới nhất về thai kỳ và em bé",
     }.get(category, "mang thai và chăm sóc bé")
 
-    baby_name = "Măng"
+    baby_name = "Bơ"
 
     prompt = f"""Mày là admin Facebook Page "Mẹ Khéo Con Khoẻ" - trang chuyên về {category_context}.
 Page bán đồ an toàn cho bé, đồ ngủ và đồ tiện ích cho bé 6-36 tháng.
