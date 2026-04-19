@@ -50,4 +50,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add state.json
           git diff --staged --quiet || git commit -m "chore: update state.json [skip ci]"
-          git push
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/sn010698c-png/thebump-autopost.git HEAD:main
