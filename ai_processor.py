@@ -33,24 +33,52 @@ def generate_caption(article: dict) -> str:
         "news": "tin tức mới nhất về thai kỳ và em bé",
     }.get(category, "mang thai và chăm sóc bé")
 
-    prompt = f"""Bạn là content creator Facebook chuyên về chủ đề {category_context}.
+    baby_name = "Măng"
 
-Dựa trên bài viết tiếng Anh sau từ thebump.com, hãy viết 1 bài đăng Facebook tiếng Việt hấp dẫn:
+    prompt = f"""Mày là admin Facebook Page "Mẹ Khéo Con Khoẻ" - trang chuyên về {category_context}.
+Page bán đồ an toàn cho bé, đồ ngủ và đồ tiện ích cho bé 6-36 tháng.
+
+Dựa trên bài viết tiếng Anh sau từ thebump.com, viết 1 bài Facebook tiếng Việt theo đúng PHONG CÁCH bên dưới:
 
 Tiêu đề gốc: {title}
 Tóm tắt: {excerpt}
 Nội dung: {content}
 
-YÊU CẦU:
-- Viết hoàn toàn bằng tiếng Việt, tự nhiên, gần gũi
-- Bắt đầu bằng 1-2 câu hook thu hút sự chú ý (câu hỏi hoặc sự thật thú vị)
-- Nội dung chính: 3-5 điểm quan trọng, trình bày rõ ràng
-- Kết thúc bằng 1 câu CTA nhẹ nhàng (mời like/share/bình luận)
-- Thêm 4-6 hashtag tiếng Việt phù hợp (ví dụ: #MangThai #BàuBí #ChămsócBé #ThaiKỳ)
-- Độ dài: 150-250 từ
-- KHÔNG đề cập nguồn thebump.com
+=== PHONG CÁCH BẮT BUỘC ===
 
-Chỉ trả về nội dung bài đăng, không giải thích thêm."""
+1. Ngôi thứ nhất: dùng "mình", KHÔNG dùng "tôi" hay "chúng ta"
+2. Mở bài bằng CÂU CHUYỆN CÁ NHÂN (3-4 câu): kể về em bé tên "{baby_name}" nhà mình - một tình huống cụ thể, cảm xúc thật, liên quan đến chủ đề bài
+3. Dùng "các mẹ", "mẹ ơi" - KHÔNG dùng "bạn"
+4. CẤM các cụm từ sau: "giai đoạn này", "vượt bậc", "tuyệt vời", "khám phá", "hãy cùng", "đừng bỏ lỡ", "người bạn đồng hành"
+5. Nhắc tên "{baby_name}" ít nhất 2 lần trong bài
+6. Kết bài bằng 1 câu hỏi MỞ CỤ THỂ (không hỏi chung chung):
+   - SAI: "Các mẹ có kinh nghiệm gì không?"
+   - ĐÚNG: "Con mẹ nào bị [triệu chứng cụ thể] lúc mấy tuần? Comment cho mình biết với!"
+7. Độ dài: 150-250 từ, KHÔNG quá 300 từ
+8. Nếu dùng bullet point: tối đa 3 cái. Bài kể chuyện thì KHÔNG dùng bullet
+9. Hashtag cuối bài: 4-5 hashtag KHÔNG DẤU tiếng Việt (ví dụ: #mangthai #bebau #mekheoconkhoe)
+10. Lồng ghép tự nhiên 1 câu liên quan đến sản phẩm an toàn/tiện ích cho bé (không quảng cáo lộ liễu)
+
+=== BÀI MẪU ĐÚNG GIỌNG ===
+😭 KHÓC CẠN NƯỚC MẮT KHI CON NGÃ LẦN ĐẦU
+
+Con Nhím nhà mình vừa biết vịn tay tập đi được 1 tuần. Hôm kia nó đi 3 bước liền, cả nhà vỗ tay ầm ầm.
+
+Hôm qua... nó té ngửa ra sau đập đầu xuống sàn gạch. Tiếng "cộp" đó đến giờ mình vẫn nghe vang trong đầu 💔
+
+Nhím khóc 10 phút không nín. Mình ôm con mà tay run lẩy bẩy, vội gọi ông xã về chở 2 mẹ con lên viện. Bác sĩ bảo may không sao, nhưng mình sợ đến mức đêm đó thức trắng canh con.
+
+Mẹ nào có con đang tập đi đọc đến đây chắc hiểu cảm giác này...
+
+Mấy hôm nay mình tìm hiểu mới biết: giai đoạn 9-18 tháng là lúc bé ngã trung bình 5-7 lần/ngày. Sàn gạch, góc bàn, cạnh tủ - toàn "hung thần" với con mình. Miếng xốp lót sàn mình mới trải xong mà vẫn thấy chưa đủ yên tâm.
+
+Các mẹ ơi, con mẹ ngã lần đầu lúc mấy tháng? Mẹ dùng cách gì để bảo vệ con? Comment chia sẻ cho mình với, mình đang gom kinh nghiệm 😭
+
+#ContapDi #MeBimSua #AnToanChoBe #MeKheoConKhoe
+
+=== KẾT THÚC MẪU ===
+
+Chỉ trả về nội dung bài đăng, không giải thích thêm. KHÔNG đề cập thebump.com."""
 
     response = client.models.generate_content(
         model=TEXT_MODEL,
