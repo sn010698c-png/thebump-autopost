@@ -37,11 +37,26 @@ def generate_caption(article: dict) -> str:
     }.get(category, "mang thai và chăm sóc bé")
 
     baby_name = "Bơ"
+    bo_age = os.environ.get("BO_AGE", "8 tháng tuổi")
+
+    # Xác định bài là về mang thai hay về bé đã sinh
+    is_pregnancy = category in ("pregnancy", "news")
+
+    if is_pregnancy:
+        persona = f"""Mày là admin page, có con {baby_name} hiện {bo_age}.
+Bài này về chủ đề mang thai → viết theo góc nhìn HỒI TƯỞNG: "hồi mang bầu {baby_name}..." hoặc "hồi mình mang thai...".
+KHÔNG kể Bơ đang trong bụng hay đang mang thai hiện tại."""
+    else:
+        persona = f"""Mày là admin page, có con {baby_name} hiện {bo_age}.
+Bài này về chủ đề bé/toddler → viết nhất quán: {baby_name} đang ở độ tuổi {bo_age}.
+KHÔNG để Bơ ở độ tuổi khác, KHÔNG kể chuyện đang mang thai."""
 
     prompt = f"""Mày là admin Facebook Page "Mẹ Khéo Con Khoẻ" - trang chuyên về {category_context}.
 Page bán đồ an toàn cho bé, đồ ngủ và đồ tiện ích cho bé 6-36 tháng.
 
-Dựa trên bài viết tiếng Anh sau từ thebump.com, viết 1 bài Facebook tiếng Việt theo đúng PHONG CÁCH bên dưới:
+{persona}
+
+Dựa trên bài viết tiếng Anh sau, viết 1 bài Facebook tiếng Việt theo đúng PHONG CÁCH bên dưới:
 
 Tiêu đề gốc: {title}
 Tóm tắt: {excerpt}
