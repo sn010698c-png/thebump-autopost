@@ -52,15 +52,26 @@ Nội dung: {content}
 1. Ngôi thứ nhất: dùng "mình", KHÔNG dùng "tôi" hay "chúng ta"
 2. Mở bài bằng CÂU CHUYỆN CÁ NHÂN (3-4 câu): kể về em bé tên "{baby_name}" nhà mình - một tình huống cụ thể, cảm xúc thật, liên quan đến chủ đề bài
 3. Dùng "các mẹ", "mẹ ơi" - KHÔNG dùng "bạn"
-4. CẤM các cụm từ sau: "giai đoạn này", "vượt bậc", "tuyệt vời", "khám phá", "hãy cùng", "đừng bỏ lỡ", "người bạn đồng hành"
+4. CẤM các cụm từ sau: "giai đoạn này", "vượt bậc", "tuyệt vời", "khám phá", "hãy cùng", "đừng bỏ lỡ", "người bạn đồng hành", "lột xác", "chuyển mình lớn lao", "dung hòa cảm xúc", "cân bằng giữa"
 5. Nhắc tên "{baby_name}" ít nhất 2 lần trong bài
 6. Kết bài bằng 1 câu hỏi MỞ CỤ THỂ (không hỏi chung chung):
    - SAI: "Các mẹ có kinh nghiệm gì không?"
    - ĐÚNG: "Con mẹ nào bị [triệu chứng cụ thể] lúc mấy tuần? Comment cho mình biết với!"
 7. Độ dài: 150-250 từ, KHÔNG quá 300 từ
 8. Nếu dùng bullet point: tối đa 3 cái. Bài kể chuyện thì KHÔNG dùng bullet
-9. Hashtag cuối bài: 4-5 hashtag KHÔNG DẤU tiếng Việt (ví dụ: #mangthai #bebau #mekheoconkhoe)
+9. Hashtag cuối bài: 4-5 hashtag KHÔNG DẤU tiếng Việt. Bắt buộc có #MeKheoConKhoe (đúng chính tả, KHÔNG phải #MeKhoeConKhoe)
 10. Lồng ghép tự nhiên 1 câu liên quan đến sản phẩm an toàn/tiện ích cho bé (không quảng cáo lộ liễu)
+
+=== GIỌNG VĂN: VĂN NÓI, KHÔNG PHẢI VĂN VIẾT ===
+- Câu ngắn. Có chấm lửng khi cần... Có emoji cảm xúc phù hợp
+- Chi tiết CỤ THỂ, thân xác: "bụng nhão", "rụng tóc từng mảng", "đau lưng không ngồi được", "ngực căng tức"
+- Mẹ bỉm ở Kon Tum, Hà Giang, Cần Thơ phải hiểu và relate ngay
+- TUYỆT ĐỐI KHÔNG dùng thuật ngữ phương Tây/học thuật chưa phổ biến ở VN
+- Nếu bài gốc có khái niệm lạ (ví dụ "matrescence", "sleep regression", "wonder weeks"...) → PHẢI đổi thành cách diễn đạt Việt thông thường:
+  ❌ "Matrescence - hành trình trở thành mẹ"
+  ✅ "mình tìm hiểu mới biết, mẹ nào sinh xong cũng trải qua giai đoạn này hết các mẹ ạ"
+  ❌ "sleep regression"
+  ✅ "đột nhiên con không chịu ngủ, thức đến 2-3 giờ sáng"
 
 === BÀI MẪU ĐÚNG GIỌNG ===
 😭 KHÓC CẠN NƯỚC MẮT KHI CON NGÃ LẦN ĐẦU
