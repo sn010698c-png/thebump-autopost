@@ -28,9 +28,12 @@ def generate_caption(article: dict) -> str:
     category = article.get("category", "pregnancy")
 
     category_context = {
-        "pregnancy": "mang thai, thai kỳ, sức khoẻ bà bầu",
-        "baby": "chăm sóc bé, sơ sinh, nuôi con",
-        "news": "tin tức mới nhất về thai kỳ và em bé",
+        "pregnancy":      "mang thai, thai kỳ, sức khoẻ bà bầu",
+        "baby":           "chăm sóc bé sơ sinh, nuôi con nhỏ",
+        "baby_6_12":      "bé 6-12 tháng: tập bò, tập ngồi, mọc răng, ăn dặm",
+        "toddler_12_24":  "bé 12-24 tháng: tập đi, tập nói, an toàn trong nhà",
+        "toddler_2_3":    "bé 2-3 tuổi: mẫu giáo, tính cách, kỷ luật tích cực",
+        "news":           "tin tức mới nhất về thai kỳ và em bé",
     }.get(category, "mang thai và chăm sóc bé")
 
     baby_name = "Bơ"
@@ -93,9 +96,12 @@ def generate_image(article: dict) -> bytes | None:
     category = article.get("category", "pregnancy")
 
     style_map = {
-        "pregnancy": "a warm, soft illustration of a happy pregnant woman, pastel colors, gentle lighting, cozy home setting",
-        "baby": "a cute illustration of a happy baby or toddler, soft pastel colors, warm and cheerful, cartoon style",
-        "news": "a gentle illustration related to pregnancy and baby care, soft colors, modern flat design",
+        "pregnancy":     "a warm, soft illustration of a happy pregnant woman, pastel colors, gentle lighting, cozy home setting",
+        "baby":          "a cute illustration of a happy newborn baby, soft pastel colors, warm and cheerful, cartoon style",
+        "baby_6_12":     "a cute illustration of a chubby baby crawling or eating solid foods, soft pastel colors, cheerful cartoon style",
+        "toddler_12_24": "a cute illustration of a happy toddler taking first steps or playing safely at home, pastel colors, warm cartoon style",
+        "toddler_2_3":   "a cute illustration of a playful toddler at preschool or playing with building blocks, soft pastel colors, cheerful cartoon style",
+        "news":          "a gentle illustration related to pregnancy and baby care, soft colors, modern flat design",
     }
     style = style_map.get(category, style_map["pregnancy"])
 

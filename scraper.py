@@ -9,9 +9,21 @@ from pathlib import Path
 
 STATE_FILE = Path(__file__).parent / "state.json"
 
+BASE = "https://news.google.com/rss/search?hl=en-US&gl=US&ceid=US:en&q="
+SOURCES = "site:thebump.com+OR+site:babycenter.com+OR+site:whattoexpect.com+OR+site:parents.com+OR+site:healthychildren.org"
+
 GOOGLE_NEWS_FEEDS = [
-    "https://news.google.com/rss/search?q=site:thebump.com+pregnancy+tips&hl=en-US&gl=US&ceid=US:en",
-    "https://news.google.com/rss/search?q=site:thebump.com+baby+care&hl=en-US&gl=US&ceid=US:en",
+    # Pregnancy
+    BASE + f"({SOURCES})+pregnancy+tips",
+    # 6-12 tháng
+    BASE + f"({SOURCES})+baby+crawling+sitting+teething",
+    BASE + f"({SOURCES})+baby+solid+foods+6+months",
+    # 12-24 tháng
+    BASE + f"({SOURCES})+toddler+walking+talking+12+months",
+    BASE + f"({SOURCES})+baby+home+safety+toddler",
+    # 2-3 tuổi
+    BASE + f"({SOURCES})+toddler+preschool+discipline",
+    BASE + f"({SOURCES})+toddler+behavior+temperament+2+years",
 ]
 
 HEADERS = {
@@ -36,11 +48,37 @@ def save_posted_url(url: str):
 
 
 def _clean_html(text: str) -> str:
-    return re.sub(r"<[^>]+>", "", text).strip()
+    text = re.sub(r"<[^>]+>", "", text)
+    text = text.replace("&nbsp;", " ").replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", '"')
+    return text.strip()
+
+
+HOMEPAGE_PATTERNS = [
+    r"^Parents: Trusted Parenting",
+    r"^HealthyChildren\.org - From",
+    r"^BabyCenter\s*[-|]",
+    r"^What to Expect\s*[-|]",
+]
+
+def _is_homepage(title: str, excerpt: str) -> bool:
+    """Lọc bỏ kết quả là trang chủ, không phải bài viết."""
+    for pat in HOMEPAGE_PATTERNS:
+        if re.search(pat, title):
+            return True
+    # Excerpt quá ngắn = không phải bài viết thực
+    if len(excerpt.strip()) < 50:
+        return True
+    return False
 
 
 def _guess_category(title: str) -> str:
     text = title.lower()
+    if any(w in text for w in ["preschool", "discipline", "tantrum", "2-year", "3-year", "two year", "three year"]):
+        return "toddler_2_3"
+    if any(w in text for w in ["walking", "first steps", "talking", "first words", "12 month", "18 month", "home safety", "childproof"]):
+        return "toddler_12_24"
+    if any(w in text for w in ["crawl", "sitting", "teething", "solid food", "weaning", "6 month", "9 month"]):
+        return "baby_6_12"
     if any(w in text for w in ["baby", "infant", "newborn", "toddler", "postpartum"]):
         return "baby"
     return "pregnancy"
@@ -78,6 +116,8 @@ def get_new_articles(max_articles: int = 3) -> list[dict]:
                 # Dùng title làm key dedup (URL là Google redirect, không dùng được)
                 title_key = title.lower()
                 if not title or title_key in seen_titles or link in posted_urls:
+                    continue
+                if _is_homepage(title, desc):
                     continue
 
                 seen_titles.add(title_key)
