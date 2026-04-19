@@ -4,6 +4,8 @@ on:
   schedule:
     # 8:00 AM Vietnam time = 01:00 UTC
     - cron: '0 1 * * *'
+    # 5:00 PM Vietnam time = 10:00 UTC
+    - cron: '0 10 * * *'
   workflow_dispatch:  # cho phép chạy thủ công từ GitHub UI
 
 permissions:
