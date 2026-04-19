@@ -1,0 +1,50 @@
+name: Daily Facebook Autopost
+
+on:
+  schedule:
+    # 8:00 AM Vietnam time = 01:00 UTC
+    - cron: '0 1 * * *'
+  workflow_dispatch:  # cho phép chạy thủ công từ GitHub UI
+
+jobs:
+  autopost:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create .env from secrets
+        run: |
+          cat > .env << 'EOF'
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          FB_PAGE_TOKEN=${{ secrets.FB_PAGE_TOKEN }}
+          FB_PAGE_ID=${{ secrets.FB_PAGE_ID }}
+          FB_APP_ID=${{ secrets.FB_APP_ID }}
+          FB_APP_SECRET=${{ secrets.FB_APP_SECRET }}
+          FB_USER_TOKEN=${{ secrets.FB_USER_TOKEN }}
+          EOF
+
+      - name: Run autopost
+        env:
+          PYTHONUTF8: '1'
+        run: python main.py
+
+      - name: Save updated state.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state.json
+          git diff --staged --quiet || git commit -m "chore: update state.json [skip ci]"
+          git push
