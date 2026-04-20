@@ -21,26 +21,41 @@ def _get_credentials() -> tuple[str, str]:
 
 
 def post_photo_with_caption(image_bytes: bytes, caption: str) -> dict:
-    """Đăng ảnh + caption lên Facebook Page — hiện trên timeline public."""
+    """Đăng ảnh + caption lên Facebook Page — hiện trên timeline public.
+    Flow: upload ảnh unpublished → lấy photo_id → post feed với attached_media.
+    """
     token, page_id = _get_credentials()
 
-    url = f"{FB_BASE_URL}/{page_id}/photos"
-    files = {"source": ("image.png", io.BytesIO(image_bytes), "image/png")}
-    data = {
-        "caption": caption,
-        "access_token": token,
-        "published": "true",
-        "no_story": "false",  # bắt buộc tạo feed story trên timeline
-    }
+    # Bước 1: Upload ảnh unpublished → lấy photo_id
+    r1 = requests.post(
+        f"{FB_BASE_URL}/{page_id}/photos",
+        files={"source": ("image.png", io.BytesIO(image_bytes), "image/png")},
+        data={"access_token": token, "published": "false"},
+        timeout=60,
+    )
+    result1 = r1.json()
+    if r1.status_code != 200 or "error" in result1:
+        raise RuntimeError(f"Upload ảnh lỗi: {result1}")
+    photo_id = result1["id"]
+    print(f"  Uploaded photo_id: {photo_id}")
 
-    response = requests.post(url, files=files, data=data, timeout=60)
-    result = response.json()
+    # Bước 2: Post lên /feed với ảnh đính kèm → xuất hiện trên timeline
+    import json as _json
+    r2 = requests.post(
+        f"{FB_BASE_URL}/{page_id}/feed",
+        data={
+            "message": caption,
+            "attached_media": _json.dumps([{"media_fbid": photo_id}]),
+            "access_token": token,
+        },
+        timeout=30,
+    )
+    result2 = r2.json()
+    if r2.status_code != 200 or "error" in result2:
+        raise RuntimeError(f"Đăng feed lỗi: {result2}")
 
-    if response.status_code != 200 or "error" in result:
-        raise RuntimeError(f"Facebook API lỗi: {result}")
-
-    print(f"  Đã đăng ảnh lên Facebook! Post ID: {result.get('post_id') or result.get('id')}")
-    return result
+    print(f"  Đã đăng lên Facebook! Post ID: {result2.get('id')}")
+    return result2
 
 
 def post_text_only(caption: str) -> dict:
