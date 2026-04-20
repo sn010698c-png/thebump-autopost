@@ -29,6 +29,7 @@ def post_photo_with_caption(image_bytes: bytes, caption: str) -> dict:
     data = {
         "caption": caption,
         "access_token": token,
+        "published": "true",
     }
 
     response = requests.post(url, files=files, data=data, timeout=60)
