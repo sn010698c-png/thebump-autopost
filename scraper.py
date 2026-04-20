@@ -73,15 +73,16 @@ def _is_homepage(title: str, excerpt: str) -> bool:
 
 def _guess_category(title: str) -> str:
     text = title.lower()
+    if any(w in text for w in ["pregnant", "pregnancy", "trimester", "prenatal", "due date", "morning sickness", "labor", "birth", "maternity", "bump"]):
+        return "pregnancy"
     if any(w in text for w in ["preschool", "discipline", "tantrum", "2-year", "3-year", "two year", "three year"]):
         return "toddler_2_3"
     if any(w in text for w in ["walking", "first steps", "talking", "first words", "12 month", "18 month", "home safety", "childproof"]):
         return "toddler_12_24"
     if any(w in text for w in ["crawl", "sitting", "teething", "solid food", "weaning", "6 month", "9 month"]):
         return "baby_6_12"
-    if any(w in text for w in ["baby", "infant", "newborn", "toddler", "postpartum"]):
-        return "baby"
-    return "pregnancy"
+    # Default: baby/kids content (lullaby, nursery rhyme, sleep, feeding, etc.)
+    return "baby"
 
 
 def get_new_articles(max_articles: int = 3) -> list[dict]:
