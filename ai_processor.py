@@ -159,6 +159,34 @@ Style: warm, soft watercolor illustration, pastel pink and blue tones, no text, 
         return None
 
 
+def add_watermark(image_bytes: bytes) -> bytes:
+    """Chèn logo vào góc dưới phải của ảnh."""
+    logo_path = Path(__file__).parent / "logo.png"
+    if not logo_path.exists():
+        return image_bytes
+
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGBA")
+    logo = Image.open(logo_path).convert("RGBA")
+
+    # Resize logo = 20% chiều rộng ảnh
+    logo_w = int(img.width * 0.20)
+    ratio = logo_w / logo.width
+    logo_h = int(logo.height * ratio)
+    logo = logo.resize((logo_w, logo_h), Image.LANCZOS)
+
+    # Đặt vào góc dưới phải, cách mép 16px
+    padding = 16
+    x = img.width - logo_w - padding
+    y = img.height - logo_h - padding
+
+    # Dùng alpha channel của logo làm mask
+    img.paste(logo, (x, y), logo)
+
+    out = io.BytesIO()
+    img.convert("RGB").save(out, format="PNG")
+    return out.getvalue()
+
+
 def process_article(article: dict) -> dict:
     """Xử lý 1 bài: tạo caption + ảnh."""
     print(f"  AI đang xử lý: {article['title'][:60]}...")
@@ -168,6 +196,7 @@ def process_article(article: dict) -> dict:
 
     image_bytes = generate_image(article)
     if image_bytes:
+        image_bytes = add_watermark(image_bytes)
         print(f"  Ảnh tạo xong ({len(image_bytes)} bytes)")
     else:
         print("  Không tạo được ảnh, sẽ đăng text-only")
