@@ -21,25 +21,36 @@ def _get_credentials() -> tuple[str, str]:
 
 
 def post_photo_with_caption(image_bytes: bytes, caption: str) -> dict:
-    """Đăng ảnh + caption lên Facebook Page."""
+    """Đăng ảnh + caption lên Facebook Page (2 bước: upload ảnh unpublished → đăng feed)."""
     token, page_id = _get_credentials()
 
-    url = f"{FB_BASE_URL}/{page_id}/photos"
+    # Bước 1: Upload ảnh unpublished để lấy photo_id
+    url_photos = f"{FB_BASE_URL}/{page_id}/photos"
     files = {"source": ("image.png", io.BytesIO(image_bytes), "image/png")}
-    data = {
-        "caption": caption,
+    data_upload = {
         "access_token": token,
-        "published": "true",
+        "published": "false",  # upload trước, chưa đăng
     }
+    r1 = requests.post(url_photos, files=files, data=data_upload, timeout=60)
+    result1 = r1.json()
+    if r1.status_code != 200 or "error" in result1:
+        raise RuntimeError(f"Upload ảnh lỗi: {result1}")
+    photo_id = result1.get("id")
 
-    response = requests.post(url, files=files, data=data, timeout=60)
-    result = response.json()
+    # Bước 2: Đăng lên feed với ảnh đính kèm → xuất hiện public trên timeline
+    url_feed = f"{FB_BASE_URL}/{page_id}/feed"
+    data_feed = {
+        "message": caption,
+        "attached_media[0]": f'{{"media_fbid":"{photo_id}"}}',
+        "access_token": token,
+    }
+    r2 = requests.post(url_feed, data=data_feed, timeout=30)
+    result2 = r2.json()
+    if r2.status_code != 200 or "error" in result2:
+        raise RuntimeError(f"Đăng feed lỗi: {result2}")
 
-    if response.status_code != 200 or "error" in result:
-        raise RuntimeError(f"Facebook API lỗi: {result}")
-
-    print(f"  Đã đăng ảnh lên Facebook! Post ID: {result.get('post_id') or result.get('id')}")
-    return result
+    print(f"  Đã đăng ảnh lên Facebook! Post ID: {result2.get('id')}")
+    return result2
 
 
 def post_text_only(caption: str) -> dict:
