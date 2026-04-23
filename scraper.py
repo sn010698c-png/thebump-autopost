@@ -9,21 +9,32 @@ from pathlib import Path
 
 STATE_FILE = Path(__file__).parent / "state.json"
 
-BASE = "https://news.google.com/rss/search?hl=en-US&gl=US&ceid=US:en&q="
-SOURCES = "site:thebump.com+OR+site:babycenter.com+OR+site:whattoexpect.com+OR+site:parents.com+OR+site:healthychildren.org"
+BASE_EN = "https://news.google.com/rss/search?hl=en-US&gl=US&ceid=US:en&q="
+BASE_VN = "https://news.google.com/rss/search?hl=vi&gl=VN&ceid=VN:vi&q="
+
+SOURCES_EN = "site:thebump.com+OR+site:babycenter.com+OR+site:whattoexpect.com+OR+site:parents.com+OR+site:healthychildren.org"
+SOURCES_VN = "site:marrybaby.vn+OR+site:eva.vn/lam-me"
 
 GOOGLE_NEWS_FEEDS = [
+    # --- Nguồn EN (nội dung gốc chất lượng cao) ---
     # Pregnancy
-    BASE + f"({SOURCES})+pregnancy+tips",
+    BASE_EN + f"({SOURCES_EN})+pregnancy+tips",
     # 6-12 tháng
-    BASE + f"({SOURCES})+baby+crawling+sitting+teething",
-    BASE + f"({SOURCES})+baby+solid+foods+6+months",
+    BASE_EN + f"({SOURCES_EN})+baby+crawling+sitting+teething",
+    BASE_EN + f"({SOURCES_EN})+baby+solid+foods+6+months",
     # 12-24 tháng
-    BASE + f"({SOURCES})+toddler+walking+talking+12+months",
-    BASE + f"({SOURCES})+baby+home+safety+toddler",
+    BASE_EN + f"({SOURCES_EN})+toddler+walking+talking+12+months",
+    BASE_EN + f"({SOURCES_EN})+baby+home+safety+toddler",
     # 2-3 tuổi
-    BASE + f"({SOURCES})+toddler+preschool+discipline",
-    BASE + f"({SOURCES})+toddler+behavior+temperament+2+years",
+    BASE_EN + f"({SOURCES_EN})+toddler+preschool+discipline",
+    BASE_EN + f"({SOURCES_EN})+toddler+behavior+temperament+2+years",
+
+    # --- Nguồn VN (insight chủ đề trending mẹ bỉm VN) ---
+    BASE_VN + f"({SOURCES_VN})+mang+thai",
+    BASE_VN + f"({SOURCES_VN})+ăn+dặm+cho+bé",
+    BASE_VN + f"({SOURCES_VN})+nuôi+con+nhỏ",
+    BASE_VN + f"({SOURCES_VN})+trẻ+sơ+sinh",
+    BASE_VN + f"({SOURCES_VN})+bé+tập+đi",
 ]
 
 HEADERS = {
@@ -58,6 +69,8 @@ HOMEPAGE_PATTERNS = [
     r"^HealthyChildren\.org - From",
     r"^BabyCenter\s*[-|]",
     r"^What to Expect\s*[-|]",
+    r"^MarryBaby\s*[-|]",
+    r"^Eva\.vn\s*[-|]",
 ]
 
 def _is_homepage(title: str, excerpt: str) -> bool:
@@ -73,15 +86,18 @@ def _is_homepage(title: str, excerpt: str) -> bool:
 
 def _guess_category(title: str) -> str:
     text = title.lower()
-    if any(w in text for w in ["pregnant", "pregnancy", "trimester", "prenatal", "due date", "morning sickness", "labor", "birth", "maternity", "bump"]):
+    if any(w in text for w in ["pregnant", "pregnancy", "trimester", "prenatal", "due date", "morning sickness", "labor", "birth", "maternity", "bump",
+                                "mang thai", "bầu", "thai kỳ", "sinh con", "sau sinh", "hậu sản"]):
         return "pregnancy"
-    if any(w in text for w in ["preschool", "discipline", "tantrum", "2-year", "3-year", "two year", "three year"]):
+    if any(w in text for w in ["preschool", "discipline", "tantrum", "2-year", "3-year", "two year", "three year",
+                                "2 tuổi", "3 tuổi", "mầm non", "kỷ luật", "ăn vạ", "giận dỗi"]):
         return "toddler_2_3"
-    if any(w in text for w in ["walking", "first steps", "talking", "first words", "12 month", "18 month", "home safety", "childproof"]):
+    if any(w in text for w in ["walking", "first steps", "talking", "first words", "12 month", "18 month", "home safety", "childproof",
+                                "tập đi", "tập nói", "12 tháng", "18 tháng", "an toàn"]):
         return "toddler_12_24"
-    if any(w in text for w in ["crawl", "sitting", "teething", "solid food", "weaning", "6 month", "9 month"]):
+    if any(w in text for w in ["crawl", "sitting", "teething", "solid food", "weaning", "6 month", "9 month",
+                                "ăn dặm", "mọc răng", "lật", "bò", "6 tháng", "9 tháng"]):
         return "baby_6_12"
-    # Default: baby/kids content (lullaby, nursery rhyme, sleep, feeding, etc.)
     return "baby"
 
 
@@ -111,8 +127,9 @@ def get_new_articles(max_articles: int = 3) -> list[dict]:
                 link  = (link_el.text or "").strip() if link_el is not None else ""
                 desc  = _clean_html(desc_el.text or "") if desc_el is not None else ""
 
-                # Bỏ suffix "- The Bump"
+                # Bỏ suffix nguồn EN và VN
                 title = re.sub(r"\s*[-|]\s*The Bump\s*$", "", title).strip()
+                title = re.sub(r"\s*[-|]\s*(MarryBaby|Eva\.vn|Marry Baby)\s*$", "", title).strip()
 
                 # Dùng title làm key dedup (URL là Google redirect, không dùng được)
                 title_key = title.lower()

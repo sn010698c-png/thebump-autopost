@@ -1,133 +1,135 @@
 """
-ai_processor.py - Dùng Google AI Studio (Gemini) để:
-1. Dịch + viết caption Facebook tiếng Việt
-2. Tạo ảnh minh hoạ bằng Gemini 2.0 Flash (image generation)
+ai_processor.py - Dùng OpenAI để:
+1. Dịch + viết caption Facebook tiếng Việt (gpt-5.4-mini)
+2. Tạo ảnh minh hoạ (gpt-image-2)
 """
 import os
 import io
 import base64
 from pathlib import Path
-from google import genai
-from google.genai import types
+from openai import OpenAI
 from PIL import Image
 from dotenv import load_dotenv
 
 load_dotenv()
 
-client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
-TEXT_MODEL = "gemini-2.5-flash"
-IMAGE_MODEL = "gemini-2.5-flash-image"
+_SKILL_PATH = Path(__file__).parent / "skill_content.md"
+CONTENT_SKILL = _SKILL_PATH.read_text(encoding="utf-8") if _SKILL_PATH.exists() else ""
+
+TEXT_MODEL = "gpt-5.4-mini"
+IMAGE_MODEL = "gpt-image-2"
+
+
+_LOAI_BAI_CYCLE = ["A", "B", "C", "D", "E"]
+_LOAI_BAI_DESC = {
+    "A": "Câu chuyện cá nhân — kể 1 tình huống thật với bé Bơ / anh Tú / bà nội, có cảm xúc, có bài học ngầm, dẫn về sản phẩm.",
+    "B": "Mẹo hay / kiến thức — chia sẻ mẹo chăm con dưới dạng 'mình tìm hiểu được', không liệt kê khô cứng.",
+    "C": "Tương tác / câu hỏi — hỏi mẹ bỉm về kinh nghiệm, tình huống cụ thể, khiến họ muốn comment.",
+    "D": "Cảnh báo / pain point — kể sự cố tai nạn vặt đã xảy ra với Bơ hoặc nghe kể, cảnh tỉnh mẹ khác + gợi nhu cầu đồ an toàn.",
+    "E": "Behind the scenes / đời thường — khoảnh khắc nhỏ đáng yêu, tạo cảm giác mẹ Mai là người thật.",
+}
+
+
+def _pick_loai_bai() -> str:
+    """Luân phiên loại bài A→B→C→D→E→A dựa trên state.json."""
+    import json
+    from pathlib import Path as P
+    state_file = P(__file__).parent / "state.json"
+    data = json.loads(state_file.read_text(encoding="utf-8")) if state_file.exists() else {}
+    last_idx = data.get("last_loai_bai_idx", -1)
+    next_idx = (last_idx + 1) % len(_LOAI_BAI_CYCLE)
+    data["last_loai_bai_idx"] = next_idx
+    state_file.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    return _LOAI_BAI_CYCLE[next_idx]
 
 
 def generate_caption(article: dict) -> str:
-    """Tạo caption Facebook tiếng Việt từ bài viết thebump.com."""
-    title = article.get("title", "")
-    excerpt = article.get("excerpt", "")
-    content = article.get("content", "")[:1500]
-    category = article.get("category", "pregnancy")
+    """Tạo caption Facebook tiếng Việt từ bài viết."""
+    title    = article.get("title", "")
+    excerpt  = article.get("excerpt", "")
+    content  = article.get("content", "")[:1500]
+    category = article.get("category", "baby")
+
+    bo_age = os.environ.get("BO_AGE", "18 tháng tuổi")
+    loai_bai = _pick_loai_bai()
 
     category_context = {
         "pregnancy":      "mang thai, thai kỳ, sức khoẻ bà bầu",
         "baby":           "chăm sóc bé sơ sinh, nuôi con nhỏ",
-        "baby_6_12":      "bé 6-12 tháng: tập bò, tập ngồi, mọc răng, ăn dặm",
-        "toddler_12_24":  "bé 12-24 tháng: tập đi, tập nói, an toàn trong nhà",
-        "toddler_2_3":    "bé 2-3 tuổi: mẫu giáo, tính cách, kỷ luật tích cực",
-        "news":           "tin tức mới nhất về thai kỳ và em bé",
-    }.get(category, "mang thai và chăm sóc bé")
+        "baby_6_12":      "bé 6–12 tháng: tập bò, tập ngồi, mọc răng, ăn dặm",
+        "toddler_12_24":  "bé 12–24 tháng: tập đi, tập nói, an toàn trong nhà",
+        "toddler_2_3":    "bé 2–3 tuổi: mẫu giáo, tính cách, kỷ luật tích cực",
+        "news":           "nuôi dạy con nhỏ",
+    }.get(category, "nuôi dạy con nhỏ")
 
-    baby_name = "Bơ"
-    bo_age = os.environ.get("BO_AGE", "8 tháng tuổi")
-
-    # Xác định bài là về mang thai hay về bé đã sinh
     is_pregnancy = category in ("pregnancy", "news")
-
     if is_pregnancy:
-        persona = f"""Mày là admin page, có con {baby_name} hiện {bo_age}.
-Bài này về chủ đề mang thai → viết theo góc nhìn HỒI TƯỞNG: "hồi mang bầu {baby_name}..." hoặc "hồi mình mang thai...".
-KHÔNG kể Bơ đang trong bụng hay đang mang thai hiện tại."""
+        persona_note = f"""Chủ đề mang thai → viết theo góc HỒI TƯỞNG: "hồi mang bầu Bơ...", "hồi mình còn bầu...".
+KHÔNG kể đang mang thai hiện tại. KHÔNG đề cập tuổi Bơ trong phần hồi tưởng."""
     else:
-        persona = f"""Mày là admin page, có con {baby_name} hiện {bo_age}.
-Bài này về chủ đề bé/toddler → viết nhất quán: {baby_name} đang ở độ tuổi {bo_age}.
-KHÔNG để Bơ ở độ tuổi khác, KHÔNG kể chuyện đang mang thai."""
+        persona_note = f"""Chủ đề bé/toddler → Bơ đang {bo_age} hiện tại.
+Tra bảng mốc phát triển trong skill để chọn đúng hành động phù hợp tuổi {bo_age}.
+KHÔNG để Bơ ở tuổi khác, KHÔNG kể chuyện đang mang thai."""
 
-    prompt = f"""Mày là admin Facebook Page "Mẹ Khéo Con Khoẻ" - trang chuyên về {category_context}.
-Page bán đồ an toàn cho bé, đồ ngủ và đồ tiện ích cho bé 6-36 tháng.
+    prompt = f"""Mày là MAI — mẹ bỉm 30 tuổi, admin page "Mẹ Khéo Con Khoẻ", chuyên về {category_context}.
+Nhân vật: con gái Bơ ({bo_age}), chồng anh Tú, bà nội hay sang phụ chăm, bà ngoại ở quê.
 
-{persona}
+{persona_note}
 
-Dựa trên bài viết tiếng Anh sau, viết 1 bài Facebook tiếng Việt theo đúng PHONG CÁCH bên dưới:
+Loại bài hôm nay: **{loai_bai}** — {_LOAI_BAI_DESC[loai_bai]}
+
+Dựa trên bài sau, viết 1 bài Facebook tiếng Việt tuân thủ TOÀN BỘ skill đã được nạp:
 
 Tiêu đề gốc: {title}
 Tóm tắt: {excerpt}
 Nội dung: {content}
 
-=== PHONG CÁCH BẮT BUỘC ===
-
-1. Ngôi thứ nhất: dùng "mình", KHÔNG dùng "tôi" hay "chúng ta"
-2. Mở bài bằng CÂU CHUYỆN CÁ NHÂN (3-4 câu): kể về em bé tên "{baby_name}" nhà mình - một tình huống cụ thể, cảm xúc thật, liên quan đến chủ đề bài
-3. Dùng "các mẹ", "mẹ ơi" - KHÔNG dùng "bạn"
-4. CẤM các cụm từ sau: "giai đoạn này", "vượt bậc", "tuyệt vời", "khám phá", "hãy cùng", "đừng bỏ lỡ", "người bạn đồng hành", "lột xác", "chuyển mình lớn lao", "dung hòa cảm xúc", "cân bằng giữa"
-5. Nhắc tên "{baby_name}" ít nhất 2 lần trong bài
-6. Kết bài bằng 1 câu hỏi MỞ CỤ THỂ (không hỏi chung chung):
-   - SAI: "Các mẹ có kinh nghiệm gì không?"
-   - ĐÚNG: "Con mẹ nào bị [triệu chứng cụ thể] lúc mấy tuần? Comment cho mình biết với!"
-7. Độ dài: 150-250 từ, KHÔNG quá 300 từ
-8. Nếu dùng bullet point: tối đa 3 cái. Bài kể chuyện thì KHÔNG dùng bullet
-9. Hashtag cuối bài: 4-5 hashtag KHÔNG DẤU tiếng Việt. Bắt buộc có #MeKheoConKhoe (đúng chính tả, KHÔNG phải #MeKhoeConKhoe)
-10. Lồng ghép tự nhiên 1 câu liên quan đến sản phẩm an toàn/tiện ích cho bé (không quảng cáo lộ liễu)
-
-=== GIỌNG VĂN: VĂN NÓI, KHÔNG PHẢI VĂN VIẾT ===
-- Câu ngắn. Có chấm lửng khi cần... Có emoji cảm xúc phù hợp
-- Chi tiết CỤ THỂ, thân xác: "bụng nhão", "rụng tóc từng mảng", "đau lưng không ngồi được", "ngực căng tức"
-- Mẹ bỉm ở Kon Tum, Hà Giang, Cần Thơ phải hiểu và relate ngay
-- TUYỆT ĐỐI KHÔNG dùng thuật ngữ phương Tây/học thuật chưa phổ biến ở VN
-- Nếu bài gốc có khái niệm lạ (ví dụ "matrescence", "sleep regression", "wonder weeks"...) → PHẢI đổi thành cách diễn đạt Việt thông thường:
-  ❌ "Matrescence - hành trình trở thành mẹ"
-  ✅ "mình tìm hiểu mới biết, mẹ nào sinh xong cũng trải qua giai đoạn này hết các mẹ ạ"
-  ❌ "sleep regression"
-  ✅ "đột nhiên con không chịu ngủ, thức đến 2-3 giờ sáng"
-
 === BÀI MẪU ĐÚNG GIỌNG ===
-😭 KHÓC CẠN NƯỚC MẮT KHI CON NGÃ LẦN ĐẦU
+😭 KHÓC CẠN NƯỚC MẮT KHI BƠ NGÃ LẦN ĐẦU
 
-Con Nhím nhà mình vừa biết vịn tay tập đi được 1 tuần. Hôm kia nó đi 3 bước liền, cả nhà vỗ tay ầm ầm.
+Bơ nhà mình vừa biết vịn tay tập đi được 1 tuần. Hôm kia con đi 3 bước liền, cả nhà vỗ tay ầm ầm.
 
-Hôm qua... nó té ngửa ra sau đập đầu xuống sàn gạch. Tiếng "cộp" đó đến giờ mình vẫn nghe vang trong đầu 💔
+Hôm qua... con té ngửa ra sau đập đầu xuống sàn gạch. Tiếng "cộp" đó đến giờ mình vẫn nghe vang trong đầu 💔
 
-Nhím khóc 10 phút không nín. Mình ôm con mà tay run lẩy bẩy, vội gọi ông xã về chở 2 mẹ con lên viện. Bác sĩ bảo may không sao, nhưng mình sợ đến mức đêm đó thức trắng canh con.
+Bơ khóc 10 phút không nín. Mình ôm con mà tay run lẩy bẩy, vội gọi anh Tú về chở 2 mẹ con lên viện. Bác sĩ bảo may không sao, nhưng mình sợ đến mức đêm đó thức trắng canh con.
 
 Mẹ nào có con đang tập đi đọc đến đây chắc hiểu cảm giác này...
 
-Mấy hôm nay mình tìm hiểu mới biết: giai đoạn 9-18 tháng là lúc bé ngã trung bình 5-7 lần/ngày. Sàn gạch, góc bàn, cạnh tủ - toàn "hung thần" với con mình. Miếng xốp lót sàn mình mới trải xong mà vẫn thấy chưa đủ yên tâm.
+Mấy hôm nay mình tìm hiểu mới biết: lúc 12–18 tháng bé ngã trung bình 5–7 lần/ngày. Sàn gạch, góc bàn, cạnh tủ — toàn "hung thần" với Bơ. Từ hôm đó mình đầu tư hẳn đồ an toàn cho con, yên tâm hơn hẳn. Mẹ nào cần tham khảo thì inbox mình nha 💕
 
-Các mẹ ơi, con mẹ ngã lần đầu lúc mấy tháng? Mẹ dùng cách gì để bảo vệ con? Comment chia sẻ cho mình với, mình đang gom kinh nghiệm 😭
+Các mẹ ơi, con mẹ tập đi lúc mấy tháng? Ngã nhiều nhất ở chỗ nào trong nhà? Comment kể mình nghe nhé 😭
 
-#ContapDi #MeBimSua #AnToanChoBe #MeKheoConKhoe
-
+#BeTapDi #MeBimSua #AnToanChoBe #MeKheoConKhoe
 === KẾT THÚC MẪU ===
 
-Chỉ trả về nội dung bài đăng, không giải thích thêm. KHÔNG đề cập thebump.com."""
+Chỉ trả về nội dung bài đăng, không giải thích thêm. KHÔNG đề cập nguồn bài gốc."""
 
-    response = client.models.generate_content(
+    messages = []
+    if CONTENT_SKILL:
+        messages.append({"role": "system", "content": CONTENT_SKILL})
+    messages.append({"role": "user", "content": prompt})
+
+    response = client.chat.completions.create(
         model=TEXT_MODEL,
-        contents=prompt,
+        messages=messages,
     )
-    return response.text.strip()
+    return response.choices[0].message.content.strip()
 
 
 def generate_image(article: dict) -> bytes | None:
-    """Tạo ảnh minh hoạ bằng Gemini image generation."""
+    """Tạo ảnh minh hoạ bằng OpenAI gpt-image-2."""
     title = article.get("title", "")
     category = article.get("category", "pregnancy")
 
     style_map = {
-        "pregnancy":     "a warm, soft illustration of a happy pregnant woman, pastel colors, gentle lighting, cozy home setting",
-        "baby":          "a cute illustration of a happy newborn baby, soft pastel colors, warm and cheerful, cartoon style",
-        "baby_6_12":     "a cute illustration of a chubby baby crawling or eating solid foods, soft pastel colors, cheerful cartoon style",
-        "toddler_12_24": "a cute illustration of a happy toddler taking first steps or playing safely at home, pastel colors, warm cartoon style",
-        "toddler_2_3":   "a cute illustration of a playful toddler at preschool or playing with building blocks, soft pastel colors, cheerful cartoon style",
-        "news":          "a gentle illustration related to pregnancy and baby care, soft colors, modern flat design",
+        "pregnancy":     "a warm, soft illustration of a happy pregnant Vietnamese woman, pastel colors, gentle lighting, cozy home setting",
+        "baby":          "a cute illustration of a happy newborn baby girl, soft pastel colors, warm and cheerful, cartoon style",
+        "baby_6_12":     "a cute illustration of a chubby baby girl crawling or eating solid foods, soft pastel colors, cheerful cartoon style",
+        "toddler_12_24": "a cute illustration of a happy toddler girl taking first steps or playing safely at home, pastel colors, warm cartoon style",
+        "toddler_2_3":   "a cute illustration of a playful toddler girl at preschool or playing with building blocks, soft pastel colors, cheerful cartoon style",
+        "news":          "a gentle illustration of a Vietnamese mother and baby girl, soft colors, modern flat design",
     }
     style = style_map.get(category, style_map["pregnancy"])
 
@@ -136,23 +138,15 @@ The image should relate to the topic: {title[:100]}
 Style: warm, soft watercolor illustration, pastel pink and blue tones, no text, family-friendly, social media ready, 1:1 square format"""
 
     try:
-        response = client.models.generate_content(
+        response = client.images.generate(
             model=IMAGE_MODEL,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_modalities=["IMAGE", "TEXT"],
-            ),
+            prompt=prompt,
+            n=1,
+            size="1024x1024",
+            output_format="png",
         )
-
-        for part in response.candidates[0].content.parts:
-            if part.inline_data is not None:
-                image_data = part.inline_data.data
-                if isinstance(image_data, str):
-                    image_data = base64.b64decode(image_data)
-                return image_data
-
-        print("  Gemini không trả về ảnh trong response.")
-        return None
+        img_b64 = response.data[0].b64_json
+        return base64.b64decode(img_b64)
 
     except Exception as e:
         print(f"  Lỗi generate ảnh: {e}")
