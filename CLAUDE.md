@@ -117,7 +117,7 @@ kể lại trải nghiệm thật bằng ngôn ngữ dễ hiểu. Xưng "mình",
 5. Cho ít nhất 1 điểm giá trị người đọc mang về được (mẹo / ví dụ prompt)
 6. KHÔNG bán hàng, KHÔNG chèn sản phẩm
 7. Kết bằng câu hỏi mở cụ thể kéo comment
-8. Độ dài 150–250 từ
+8. Độ dài 70–100 từ (ngắn gọn, không quá 100 từ)
 9. Hashtag không dấu, bắt buộc có **#NguyenHocAI**
 10. Bullet tối đa 3 (chỉ khi là các bước); bài kể chuyện không dùng bullet
 

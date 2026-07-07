@@ -93,29 +93,25 @@ Nhưng **thuật ngữ khó thì phải giải thích ngay bằng tiếng Việt
 
 ---
 
-## Cấu trúc bài chuẩn (150–250 từ)
+## Cấu trúc bài chuẩn (70–100 từ — NGẮN GỌN, KHÔNG lan man)
 
-**HOOK (2–3 câu đầu)** — dừng ngón tay scroll:
-- Bắt đầu bằng tình huống thật / kết quả bất ngờ / câu hỏi giật.
-- Có emoji đầu bài.
-- Ví dụ: "🤯 Mình nhờ AI làm xong việc 2 tiếng chỉ trong 5 phút..."
+Tổng cả bài chỉ **70–100 từ**. Viết cô đọng, mỗi câu 1 ý, bỏ hết câu thừa.
 
-**THÂN BÀI (100–150 từ)** — cụ thể, dễ hiểu:
-- Kể trải nghiệm "mình" thật, có chi tiết (việc gì, gõ gì, ra sao).
-- Con số cụ thể (5 phút, 3 bước, 10 email...).
-- Giải thích thuật ngữ khó ngay khi nhắc tới.
-- Rút ra 1 điều người đọc áp dụng được.
+**HOOK (1–2 câu đầu)** — dừng ngón tay scroll:
+- Tình huống thật / kết quả bất ngờ / câu hỏi giật + emoji đầu bài.
 
-**ĐIỂM GIÁ TRỊ (1–2 câu)** — cho người đọc mang về:
-- 1 mẹo / 1 lưu ý / 1 ví dụ prompt copy làm theo được.
-- KHÔNG bán gì, KHÔNG kêu gọi mua.
+**THÂN (2–3 câu, ~40–50 từ)** — vào thẳng ý:
+- 1 trải nghiệm "mình" hoặc 1 ý chính, có chi tiết/con số cụ thể.
+- Thuật ngữ khó thì giải thích gọn ngay (1 vế câu).
+
+**ĐIỂM GIÁ TRỊ (1 câu)** — 1 mẹo / lưu ý người đọc mang về. KHÔNG bán gì.
 
 **CÂU HỎI KÉO COMMENT (1 câu cuối)** — cụ thể, dễ trả lời:
 - ❌ SAI: "Mọi người thấy AI thế nào?"
-- ✅ ĐÚNG: "Cả nhà hay nhờ AI làm việc gì nhất? Comment cho mình xem với nha 👇"
+- ✅ ĐÚNG: "Cả nhà hay nhờ AI làm việc gì nhất? Comment cho mình nha 👇"
 
-**HASHTAG** — 4–5 cái, không dấu tiếng Việt:
-#NguyenHocAI (BẮT BUỘC) + 3–4 cái liên quan (#AI #ChatGPT #MeoAI #CongNghe #HocAI...)
+**HASHTAG** — 3–4 cái, không dấu tiếng Việt:
+#NguyenHocAI (BẮT BUỘC) + 2–3 cái liên quan (#AI #ChatGPT #MeoAI #CongNghe...)
 
 ---
 
@@ -149,4 +145,4 @@ nhắc mọi người tỉnh táo. Không hù doạ.
 - [ ] Kết bài hỏi cụ thể, dễ trả lời?
 - [ ] Không dính từ/cụm bị cấm?
 - [ ] Có `#NguyenHocAI` trong hashtag?
-- [ ] Độ dài 150–250 từ?
+- [ ] Độ dài 70–100 từ? (NGẮN — tuyệt đối không quá 100 từ)

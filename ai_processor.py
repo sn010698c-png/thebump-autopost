@@ -85,24 +85,21 @@ Tiêu đề gốc: {title}
 Tóm tắt: {excerpt}
 Nội dung: {content}
 
-=== BÀI MẪU ĐÚNG GIỌNG ===
-🤯 Mình nhờ ChatGPT viết email từ chối khách, xong mà nhẹ cả người
+=== BÀI MẪU ĐÚNG GIỌNG (độ dài chuẩn ~85 từ) ===
+🤯 Mình nhờ ChatGPT viết email từ chối khách, nhẹ cả người
 
-Hôm qua mình phải trả lời một khách khó tính, kiểu từ chối mà vẫn phải giữ lịch sự. Ngồi gõ xoá mấy lần vẫn thấy gượng.
+Khách đòi giảm giá, mình từ chối mà sợ mất lòng, ngồi gõ xoá mãi.
 
-Cuối cùng mình mở ChatGPT lên, gõ đúng một câu lệnh (prompt): "Viết giúp mình email từ chối yêu cầu giảm giá, giọng lịch sự, cảm ơn khách, giữ mối quan hệ."
+Cuối cùng mở ChatGPT gõ đúng một câu lệnh (prompt): "Viết email từ chối giảm giá, giọng lịch sự, giữ mối quan hệ." 15 giây sau có bản chỉnh 2 chữ là gửi 😅
 
-15 giây sau nó trả về một bản mình chỉnh 2 chữ là gửi được luôn 😅
+Mẹo nhỏ: đừng gõ cụt lủn "viết email từ chối". Thêm bối cảnh + giọng điệu + người nhận, khác một trời một vực đó cả nhà.
 
-Cái mình nhận ra: AI không quyết thay mình, nó chỉ gỡ giúp cái đoạn "bí không biết mở lời sao". Càng nói rõ mình muốn gì (giọng gì, cho ai, dài ngắn ra sao) thì nó viết càng trúng.
+Cả nhà hay nhờ AI viết gì nhất? Comment mình nghe với nha 👇
 
-Mẹo nhỏ nè cả nhà: đừng gõ cụt lủn "viết email từ chối". Hãy thêm bối cảnh + giọng điệu + người nhận. Khác một trời một vực đó.
-
-Còn mọi người, đã ai thử nhờ AI viết tin nhắn khó nói chưa? Mình tò mò cả nhà hay dùng AI vào việc gì nhất, comment cho mình biết với nha 👇
-
-#NguyenHocAI #ChatGPT #MeoAI #AI #CongNghe
+#NguyenHocAI #ChatGPT #MeoAI #AI
 === KẾT THÚC MẪU ===
 
+QUAN TRỌNG: Bài PHẢI ngắn gọn, **chỉ 70–100 từ** (như bài mẫu trên). Tuyệt đối KHÔNG quá 100 từ. Viết cô đọng, cắt hết câu thừa.
 Chỉ trả về nội dung bài đăng, không giải thích thêm. KHÔNG đề cập nguồn bài gốc."""
 
     messages = []
