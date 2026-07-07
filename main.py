@@ -47,7 +47,7 @@ def save_image(image_bytes: bytes, title: str) -> Path:
 
 async def run():
     log("=" * 50)
-    log("Bắt đầu chạy thebump-autopost")
+    log("Bắt đầu chạy Nguyên Học AI autopost")
 
     # 1. Kiểm tra và tự động làm mới Facebook token nếu cần
     log("Kiểm tra Facebook token...")
@@ -61,8 +61,8 @@ async def run():
         log("LỖI: Facebook token không hợp lệ. Dừng lại.")
         sys.exit(1)
 
-    # 2. Scrape bài mới từ thebump.com
-    log("Scraping thebump.com...")
+    # 2. Scrape bài AI/công nghệ mới
+    log("Scraping nguồn AI/công nghệ...")
     articles = get_new_articles(max_articles=3)
 
     if not articles:
