@@ -108,6 +108,18 @@ kể lại trải nghiệm thật bằng ngôn ngữ dễ hiểu. Xưng "mình",
 
 **Nội dung chi tiết:** xem `skill_content.md` (được nạp làm system prompt cho OpenAI).
 
+## Phong cách ảnh (ai_processor.py)
+
+2 style, gán theo category — **trừu tượng, KHÔNG người, KHÔNG chữ, KHÔNG logo thương hiệu**:
+
+| Style | Dùng cho | Mô tả |
+|---|---|---|
+| `_STYLE_DARK` | `ai_news`, `tech` | Nền đen/charcoal, nhấn cam amber, vibe terminal/code, tương phản mạnh trên feed |
+| `_STYLE_WARM` | `ai_howto`, `ai_tools` | Nền kem ấm, nhấn cam đất/terracotta, nét vẽ tay tối giản, thân thiện |
+
+> Lưu ý: KHÔNG hardcode "a person" hay palette xanh/tím vào prompt — đó là nguyên nhân
+> khiến ảnh cũ lặp đi lặp lại một cô gái áo tím ở mọi bài.
+
 ## Rules viết caption (tóm tắt — chi tiết trong skill_content.md)
 
 1. Ngôi thứ nhất "mình", KHÔNG "tôi"/"chúng ta"; gọi người đọc "cả nhà"/"mọi người"

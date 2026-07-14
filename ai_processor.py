@@ -114,22 +114,40 @@ Chỉ trả về nội dung bài đăng, không giải thích thêm. KHÔNG đ�
     return response.choices[0].message.content.strip()
 
 
+# 2 phong cách ảnh, gán theo category:
+#   ai_news / tech      → DARK: vibe terminal, nền tối, tương phản mạnh trên feed
+#   ai_howto / ai_tools → WARM: nền kem ấm, thân thiện, hợp bài hướng dẫn
+_STYLE_DARK = (
+    "Minimal illustration with a developer terminal aesthetic. "
+    "Dark charcoal / near-black background, muted amber-orange accent, subtle soft glow. "
+    "Abstract terminal window panels, code-like horizontal line rhythms (NOT readable letters), "
+    "clean geometric structure, quiet focused mood. Technical, precise, modern."
+)
+_STYLE_WARM = (
+    "Minimal editorial illustration with a warm, human, hand-drawn feel. "
+    "Warm cream and off-white background, terracotta / clay-coral accent, muted warm earth tones. "
+    "Simple organic shapes, thin confident line work, slightly imperfect human touch, "
+    "generous negative space. Calm, warm, thoughtful, understated."
+)
+
+_STYLE_BY_CAT = {
+    "ai_news":  _STYLE_DARK,
+    "tech":     _STYLE_DARK,
+    "ai_howto": _STYLE_WARM,
+    "ai_tools": _STYLE_WARM,
+}
+
+
 def generate_image(article: dict) -> bytes | None:
     """Tạo ảnh minh hoạ bằng OpenAI gpt-image-2."""
     title = article.get("title", "")
     category = article.get("category", "ai_news")
+    style = _STYLE_BY_CAT.get(category, _STYLE_DARK)
 
-    style_map = {
-        "ai_news":  "a clean modern illustration about artificial intelligence news, a person reading on a laptop or phone with subtle AI/neural network motifs, friendly tech vibe",
-        "ai_howto": "a clean modern illustration of a person using an AI assistant on a laptop or smartphone to get work done, step-by-step helpful feeling, friendly and approachable",
-        "ai_tools": "a clean modern illustration showing AI apps and tools on a screen, comparing options, sleek user-interface vibe, organized and clear",
-        "tech":     "a clean modern illustration about technology and gadgets in everyday life, minimal and bright, friendly tech vibe",
-    }
-    style = style_map.get(category, style_map["ai_news"])
-
-    prompt = f"""Create {style}.
-The image should relate to the topic: {title[:100]}
-Style: modern flat vector illustration, clean and minimal, blue and purple tech color palette with soft gradients, friendly and approachable (not cold or dystopian), no text, no scary robots, social media ready, 1:1 square format"""
+    prompt = f"""{style}
+Concept to convey: {title[:120]}
+Hard rules: NO people, NO human faces, NO text, NO letters, NO brand logos. Abstract and conceptual only.
+Square 1:1 composition, social media ready."""
 
     try:
         response = client.images.generate(
